@@ -1,994 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Caddie — Golf Tracker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-<style>
-  :root {
-    --green-deep:   #1a2e1a;
-    --green-mid:    #2d4a2d;
-    --green-soft:   #3d6b3d;
-    --green-light:  #5a8f5a;
-    --green-pale:   #e8f0e8;
-    --green-ghost:  #f4f8f4;
-    --gold:         #c9a84c;
-    --gold-light:   #e8d08a;
-    --cream:        #faf8f2;
-    --ink:          #1a1a18;
-    --ink-mid:      #3a3a36;
-    --ink-soft:     #6b6b64;
-    --ink-faint:    #9a9a90;
-    --border:       rgba(42,62,42,0.15);
-    --border-mid:   rgba(42,62,42,0.25);
-    --shadow-soft:  0 2px 16px rgba(26,46,26,0.08);
-    --shadow-card:  0 4px 32px rgba(26,46,26,0.12);
-    --r-sm: 6px;
-    --r-md: 10px;
-    --r-lg: 16px;
-    --r-xl: 24px;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  /* ── LOCK SCREEN ── */
-  #lock-screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--green-deep);
-    background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(61,107,61,0.3) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.08) 0%, transparent 50%);
-  }
-  .lock-card {
-    background: var(--cream);
-    border-radius: var(--r-xl);
-    padding: 3rem 2.5rem;
-    width: 100%;
-    max-width: 380px;
-    text-align: center;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
-  }
-  .lock-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--green-deep);
-    letter-spacing: -0.02em;
-    margin-bottom: 0.25rem;
-  }
-  .lock-tagline {
-    font-size: 12px;
-    color: var(--ink-faint);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 2.5rem;
-  }
-  .lock-label {
-    font-size: 13px;
-    color: var(--ink-soft);
-    margin-bottom: 1.25rem;
-  }
-  .pin-dots {
-    display: flex;
-    gap: 14px;
-    justify-content: center;
-    margin-bottom: 2rem;
-  }
-  .pin-dot {
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    border: 2px solid var(--border-mid);
-    background: transparent;
-    transition: all 0.2s;
-  }
-  .pin-dot.filled { background: var(--green-deep); border-color: var(--green-deep); }
-  .pin-keypad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 1.25rem;
-  }
-  .pin-key {
-    padding: 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    background: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .pin-key:hover { background: var(--green-ghost); border-color: var(--border-mid); }
-  .pin-key:active { transform: scale(0.95); background: var(--green-pale); }
-  .pin-key.wide { grid-column: span 2; }
-  .pin-key.action { background: var(--green-deep); color: white; border-color: var(--green-deep); }
-  .pin-key.action:hover { background: var(--green-mid); }
-  .lock-error {
-    font-size: 13px;
-    color: #c0392b;
-    min-height: 20px;
-    margin-top: 0.5rem;
-  }
-  .lock-setup-note {
-    font-size: 12px;
-    color: var(--ink-faint);
-    margin-top: 1rem;
-    line-height: 1.5;
-  }
-
-  /* ── APP SHELL ── */
-  #app { display: none; min-height: 100vh; flex-direction: column; }
-  #app.visible { display: flex; }
-
-  header {
-    background: var(--green-deep);
-    color: white;
-    padding: 0 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 58px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.2);
-  }
-  .header-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.35rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: white;
-  }
-  .header-logo span { color: var(--gold); }
-  .header-actions { display: flex; gap: 8px; align-items: center; }
-  .icon-btn {
-    width: 36px; height: 36px;
-    border-radius: var(--r-sm);
-    border: 1px solid rgba(255,255,255,0.15);
-    background: transparent;
-    color: rgba(255,255,255,0.8);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-    font-size: 16px;
-  }
-  .icon-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-
-  nav {
-    background: white;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  nav::-webkit-scrollbar { display: none; }
-  .nav-tab {
-    padding: 0 1.25rem;
-    height: 46px;
-    border: none;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink-soft);
-    cursor: pointer;
-    white-space: nowrap;
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-    letter-spacing: 0.02em;
-  }
-  .nav-tab:hover { color: var(--green-mid); }
-  .nav-tab.active { color: var(--green-deep); border-bottom-color: var(--green-deep); }
-
-  main { flex: 1; padding: 1.5rem; max-width: 720px; margin: 0 auto; width: 100%; }
-
-  .section { display: none; }
-  .section.active { display: block; }
-
-  /* ── CARDS & FIELDS ── */
-  .card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow: var(--shadow-soft);
-  }
-  .card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.05rem;
-    font-weight: 500;
-    color: var(--green-deep);
-    margin-bottom: 1rem;
-  }
-  .card-subtitle {
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--ink-faint);
-    font-family: 'DM Sans', sans-serif;
-    margin-left: 0.5rem;
-    letter-spacing: 0.03em;
-  }
-
-  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
-  .field-grid.full { grid-template-columns: 1fr; }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--ink-soft);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .field label .req { color: #c0392b; }
-  .field label .opt { color: var(--ink-faint); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; }
-  .input-wrap { display: flex; gap: 6px; align-items: center; }
-  .input-wrap input, .input-wrap textarea { flex: 1; }
-
-  input[type=text], input[type=number], input[type=date], input[type=password], select, textarea {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--ink);
-    background: var(--green-ghost);
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    padding: 9px 12px;
-    width: 100%;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    -webkit-appearance: none;
-  }
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--green-soft);
-    box-shadow: 0 0 0 3px rgba(61,107,61,0.1);
-    background: white;
-  }
-  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
-  select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b64' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-
-  .mic-btn {
-    width: 34px; height: 34px; flex-shrink: 0;
-    border-radius: 50%;
-    border: 1px solid var(--border-mid);
-    background: white;
-    color: var(--ink-soft);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .mic-btn:hover { background: var(--green-pale); color: var(--green-mid); }
-  .mic-btn.recording { background: #fde8e8; border-color: #e74c3c; color: #e74c3c; animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-
-  /* ── BUTTONS ── */
-  .btn {
-    padding: 9px 20px;
-    border-radius: var(--r-md);
-    border: 1px solid var(--border-mid);
-    background: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 0.02em;
-  }
-  .btn:hover { background: var(--green-ghost); border-color: var(--green-soft); }
-  .btn.primary {
-    background: var(--green-deep);
-    color: white;
-    border-color: var(--green-deep);
-  }
-  .btn.primary:hover { background: var(--green-mid); }
-  .btn.danger { color: #c0392b; border-color: rgba(192,57,43,0.3); }
-  .btn.danger:hover { background: #fde8e8; }
-  .btn.gold { background: var(--gold); color: white; border-color: var(--gold); }
-  .btn.gold:hover { background: #b8963e; }
-  .btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 0.25rem; }
-
-  /* ── FLASH MESSAGES ── */
-  .flash {
-    font-size: 13px;
-    font-weight: 500;
-    padding: 7px 14px;
-    border-radius: var(--r-md);
-    display: none;
-  }
-  .flash.ok  { background: #eaf5ea; color: #2d6a2d; display: inline-block; }
-  .flash.err { background: #fde8e8; color: #c0392b; display: inline-block; }
-
-  /* ── METRICS ── */
-  .metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
-  .metric {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 1rem;
-    text-align: center;
-    box-shadow: var(--shadow-soft);
-  }
-  .metric-val {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--green-deep);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .metric-lbl { font-size: 11px; color: var(--ink-faint); letter-spacing: 0.05em; text-transform: uppercase; }
-
-  /* ── ROUND ITEMS ── */
-  .round-item {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 1.1rem 1.25rem;
-    margin-bottom: 10px;
-    box-shadow: var(--shadow-soft);
-    transition: box-shadow 0.15s;
-  }
-  .round-item:hover { box-shadow: var(--shadow-card); }
-  .round-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .round-course {
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--green-deep);
-  }
-  .round-date { font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
-  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-  .badge {
-    font-size: 11px;
-    padding: 3px 9px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    color: var(--ink-soft);
-    background: var(--green-ghost);
-    font-weight: 500;
-  }
-  .badge.score { background: var(--green-pale); color: var(--green-mid); border-color: rgba(61,107,61,0.2); }
-  .badge.over  { background: #fde8e8; color: #c0392b; border-color: rgba(192,57,43,0.2); }
-  .badge.even  { background: #fff8e8; color: #8a6800; border-color: rgba(201,168,76,0.3); }
-  .badge.money { background: #fff8e0; color: #7a5c00; border-color: rgba(201,168,76,0.3); }
-  .round-notes { font-size: 13px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
-  .round-expenses { font-size: 12px; color: var(--ink-faint); margin-top: 4px; }
-
-  /* ── EXPENSE ROWS ── */
-  .exp-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-  .exp-row input.desc { flex: 1; }
-  .exp-row input.amt  { width: 95px; flex: none; }
-
-  /* ── STAFF ── */
-  .staff-item {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 1rem 1.25rem;
-    margin-bottom: 10px;
-    display: flex; gap: 12px; align-items: flex-start;
-    box-shadow: var(--shadow-soft);
-  }
-  .avatar {
-    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-    background: var(--green-pale);
-    border: 2px solid rgba(61,107,61,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 15px; font-weight: 600;
-    color: var(--green-mid);
-  }
-  .staff-info { flex: 1; min-width: 0; }
-  .staff-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 500; color: var(--green-deep); }
-  .staff-role { font-size: 12px; color: var(--ink-faint); margin: 2px 0 6px; }
-  .staff-note { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
-  .staff-actions { display: flex; gap: 6px; flex-shrink: 0; }
-
-  /* ── SECTION HEADERS ── */
-  .section-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 1.25rem;
-  }
-  .section-heading {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--green-deep);
-    letter-spacing: -0.02em;
-  }
-
-  .empty {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--ink-faint);
-    font-size: 14px;
-    line-height: 1.7;
-  }
-  .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; }
-
-  .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
-
-  .voice-hint { font-size: 11px; color: var(--ink-faint); margin-top: 6px; display: flex; align-items: center; gap: 5px; }
-
-  /* ── SETTINGS ── */
-  .settings-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .settings-row:last-child { border-bottom: none; }
-  .settings-label { font-size: 14px; color: var(--ink); }
-  .settings-desc  { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 540px) {
-    main { padding: 1rem; }
-    .metrics { grid-template-columns: 1fr 1fr; }
-    .field-grid, .field-grid.three { grid-template-columns: 1fr; }
-    .card { padding: 1rem; }
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golf Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f4;
+      --bg3: #ededeb;
+      --text: #1a1a18;
+      --text2: #6b6b66;
+      --text3: #a0a09a;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.22);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --info-bg: #e6f1fb;
+      --info-text: #185fa5;
+      --info-border: rgba(24,95,165,0.3);
+      --warn-bg: #faeeda;
+      --warn-text: #854f0b;
+      --warn-border: rgba(133,79,11,0.3);
+      --success-bg: #eaf3de;
+      --success-text: #3b6d11;
+      --danger-bg: #fcebeb;
+      --danger-text: #a32d2d;
+      --danger-border: rgba(163,45,45,0.3);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1c;
+        --bg2: #2a2a28;
+        --bg3: #333330;
+        --text: #f0ede8;
+        --text2: #a0a09a;
+        --text3: #6b6b66;
+        --border: rgba(255,255,255,0.12);
+        --border2: rgba(255,255,255,0.22);
+        --info-bg: #042c53;
+        --info-text: #85b7eb;
+        --info-border: rgba(133,183,235,0.3);
+        --warn-bg: #412402;
+        --warn-text: #fac775;
+        --warn-border: rgba(250,199,117,0.3);
+        --success-bg: #173404;
+        --success-text: #c0dd97;
+        --danger-bg: #501313;
+        --danger-text: #f09595;
+        --danger-border: rgba(240,149,149,0.3);
+      }
+    }
+    body { font-family: var(--font); background: var(--bg3); color: var(--text); min-height: 100vh; }
+    .app { max-width: 780px; margin: 0 auto; padding: 1.5rem 1rem; }
+    h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+    h1 svg { opacity: 0.7; }
+    nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--border); padding-bottom: 1rem; }
+    .nav-btn { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: transparent; cursor: pointer; font-size: 13px; color: var(--text2); font-family: var(--font); transition: all 0.15s; }
+    .nav-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .nav-btn:hover:not(.active) { background: var(--bg2); }
+    .section { display: none; }
+    .section.active { display: block; }
+    .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .field-row.full { grid-template-columns: 1fr; }
+    label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; font-family: var(--font); font-size: 14px; color: var(--text);
+      background: var(--bg2); border: 0.5px solid var(--border);
+      border-radius: var(--radius); padding: 8px 10px; outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--border2); }
+    textarea { resize: vertical; min-height: 70px; }
+    .btn {
+      padding: 8px 16px; border-radius: var(--radius); border: 0.5px solid var(--border2);
+      background: transparent; cursor: pointer; font-size: 13px;
+      font-family: var(--font); color: var(--text); transition: all 0.15s;
+    }
+    .btn:hover { background: var(--bg2); }
+    .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .btn.primary:hover { opacity: 0.85; }
+    .btn.danger { color: var(--danger-text); border-color: var(--danger-border); }
+    .btn.danger:hover { background: var(--danger-bg); }
+    .btn.mic {
+      width: 34px; height: 34px; padding: 0; display: flex;
+      align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0;
+    }
+    .btn.mic.recording { background: var(--danger-bg); border-color: var(--danger-border); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
+    .input-with-mic { display: flex; gap: 6px; align-items: flex-start; }
+    .input-with-mic input, .input-with-mic textarea { flex: 1; }
+    .metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
+    .metric { background: var(--bg2); border-radius: var(--radius); padding: 12px; }
+    .metric-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .metric-value { font-size: 22px; font-weight: 500; }
+    .round-item { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 10px; background: var(--bg); }
+    .round-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .round-title { font-weight: 500; font-size: 15px; }
+    .round-date { font-size: 12px; color: var(--text2); }
+    .round-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .badge { font-size: 11px; padding: 3px 8px; border-radius: var(--radius); background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); }
+    .badge.score { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+    .badge.expense { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+    .round-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .staff-item { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 10px; background: var(--bg); display: flex; gap: 12px; align-items: flex-start; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--info-bg); display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 14px; color: var(--info-text); flex-shrink: 0; }
+    .staff-info { flex: 1; min-width: 0; }
+    .staff-name { font-weight: 500; font-size: 15px; }
+    .staff-role { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .staff-note { font-size: 13px; color: var(--text2); }
+    .expense-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .expense-row input.desc { flex: 1; }
+    .expense-row input.amt { width: 90px; flex: none; }
+    .section-title { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
+    .empty { text-align: center; padding: 2rem; color: var(--text2); font-size: 14px; }
+    .voice-hint { font-size: 11px; color: var(--text3); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+    .tab-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .flash { font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: var(--radius); }
+    .flash.ok  { background: var(--success-bg); color: var(--success-text); }
+    .flash.err { background: var(--danger-bg);  color: var(--danger-text); }
+    .card-label { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+    .opt { color: var(--text3); font-weight: 400; font-size: 11px; }
+    .req { color: var(--danger-text); }
+    .edit-banner { background: var(--warn-bg); color: var(--warn-text); border: 0.5px solid var(--warn-border); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; margin-bottom: 1rem; display: none; }
+    .month-block { margin-bottom: 1.25rem; }
+    .month-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--border); margin-bottom: 8px; }
+    .month-name { font-size: 14px; font-weight: 500; }
+    .month-summary { display: flex; gap: 12px; align-items: center; }
+    .month-stat { font-size: 12px; color: var(--text2); }
+    .month-stat span { color: var(--text); font-weight: 500; }
+    @media (max-width: 500px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .field-row, .field-row.three { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
+<div class="app">
+  <h1>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+    Golf Tracker
+  </h1>
 
-<!-- ══════════════════════════════════════════
-     LOCK SCREEN
-═══════════════════════════════════════════ -->
-<div id="lock-screen">
-  <div class="lock-card">
-    <div class="lock-logo">Caddie</div>
-    <div class="lock-tagline">Your personal golf log</div>
-    <div class="lock-label" id="lock-label">Enter your PIN</div>
-    <div class="pin-dots" id="pin-dots">
-      <div class="pin-dot" id="dot-0"></div>
-      <div class="pin-dot" id="dot-1"></div>
-      <div class="pin-dot" id="dot-2"></div>
-      <div class="pin-dot" id="dot-3"></div>
+  <nav>
+    <button class="nav-btn active" onclick="showSection('log',this)">Log a round</button>
+    <button class="nav-btn" onclick="showSection('history',this)">History</button>
+    <button class="nav-btn" onclick="showSection('staff',this)">Staff notes</button>
+  </nav>
+
+  <!-- LOG / EDIT -->
+  <div id="sec-log" class="section active">
+    <div id="edit-banner" class="edit-banner">Editing round — make your changes and click Update round.</div>
+    <p class="section-title" id="form-title">New round</p>
+    <div class="card">
+      <div class="field-row">
+        <div>
+          <label>Course / club <span class="req">*</span></label>
+          <div class="input-with-mic">
+            <input type="text" id="f-course" placeholder="e.g. Bethpage Black" />
+            <button class="btn mic" id="mic-f-course" onclick="toggleMic('f-course')" title="Dictate">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label>Date</label>
+          <input type="date" id="f-date" />
+        </div>
+      </div>
+      <div class="field-row three">
+        <div>
+          <label>Holes played</label>
+          <select id="f-holes">
+            <option value="18">18 holes</option>
+            <option value="9">9 holes</option>
+            <option value="27">27 holes</option>
+            <option value="36">36 holes</option>
+          </select>
+        </div>
+        <div>
+          <label>Score <span class="opt">(optional)</span></label>
+          <input type="number" id="f-score" placeholder="e.g. 82" />
+        </div>
+        <div>
+          <label>Par <span class="opt">(optional)</span></label>
+          <input type="number" id="f-par" placeholder="e.g. 72" />
+        </div>
+      </div>
+      <div class="field-row full" style="margin-bottom:0">
+        <div>
+          <label>Playing partners <span class="opt">(optional)</span></label>
+          <div class="input-with-mic">
+            <input type="text" id="f-partners" placeholder="e.g. John, Mike, Sarah" />
+            <button class="btn mic" id="mic-f-partners" onclick="toggleMic('f-partners')" title="Dictate">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="pin-keypad">
-      <button class="pin-key" onclick="pinPress('1')">1</button>
-      <button class="pin-key" onclick="pinPress('2')">2</button>
-      <button class="pin-key" onclick="pinPress('3')">3</button>
-      <button class="pin-key" onclick="pinPress('4')">4</button>
-      <button class="pin-key" onclick="pinPress('5')">5</button>
-      <button class="pin-key" onclick="pinPress('6')">6</button>
-      <button class="pin-key" onclick="pinPress('7')">7</button>
-      <button class="pin-key" onclick="pinPress('8')">8</button>
-      <button class="pin-key" onclick="pinPress('9')">9</button>
-      <button class="pin-key wide" onclick="pinPress('0')">0</button>
-      <button class="pin-key action" onclick="pinBackspace()">⌫</button>
+
+    <div class="card">
+      <p class="card-label">Meals & expenses <span class="opt">(optional)</span></p>
+      <div id="expense-list"></div>
+      <button class="btn" onclick="addExpenseRow()">+ Add expense</button>
     </div>
-    <div class="lock-error" id="lock-error"></div>
-    <div class="lock-setup-note" id="lock-setup-note"></div>
+
+    <div class="card">
+      <p class="card-label">Round notes <span class="opt">(optional)</span></p>
+      <div class="input-with-mic">
+        <textarea id="f-notes" placeholder="How'd it go? Highlights, course conditions, memorable shots..."></textarea>
+        <button class="btn mic" id="mic-f-notes" onclick="toggleMic('f-notes')" title="Dictate" style="margin-top:2px">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="voice-hint">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor" opacity="0.5"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/></svg>
+        Tap a mic icon to dictate into any field
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn primary" id="save-btn" onclick="saveRound()">Save round</button>
+      <button class="btn" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">Cancel edit</button>
+      <button class="btn" onclick="clearForm()">Clear</button>
+      <span id="save-msg" style="display:none;"></span>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="sec-history" class="section">
+    <div class="tab-actions"><p class="section-title" style="margin:0">Round history</p></div>
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Rounds logged</div><div class="metric-value" id="m-rounds">0</div></div>
+      <div class="metric"><div class="metric-label">Best score</div><div class="metric-value" id="m-best">—</div></div>
+      <div class="metric"><div class="metric-label">Avg score</div><div class="metric-value" id="m-avg">—</div></div>
+      <div class="metric"><div class="metric-label">Total spent</div><div class="metric-value" id="m-spent">$0</div></div>
+    </div>
+    <div id="rounds-list"></div>
+  </div>
+
+  <!-- STAFF -->
+  <div id="sec-staff" class="section">
+    <div class="tab-actions">
+      <p class="section-title" style="margin:0">Staff notes</p>
+      <button class="btn primary" onclick="showStaffForm()">+ Add person</button>
+    </div>
+    <div id="staff-form" style="display:none" class="card">
+      <div class="field-row">
+        <div>
+          <label>Name <span class="req">*</span></label>
+          <div class="input-with-mic">
+            <input type="text" id="s-name" placeholder="First & last name" />
+            <button class="btn mic" id="mic-s-name" onclick="toggleMic('s-name')" title="Dictate">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label>Role / club <span class="opt">(optional)</span></label>
+          <div class="input-with-mic">
+            <input type="text" id="s-role" placeholder="e.g. Starter at Bethpage" />
+            <button class="btn mic" id="mic-s-role" onclick="toggleMic('s-role')" title="Dictate">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="field-row full">
+        <div>
+          <label>Notes <span class="opt">(optional)</span></label>
+          <div class="input-with-mic">
+            <textarea id="s-notes" placeholder="e.g. Tall, grey beard, always by the bag drop. Loves the Yankees."></textarea>
+            <button class="btn mic" id="mic-s-notes" onclick="toggleMic('s-notes')" title="Dictate" style="margin-top:2px">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn primary" onclick="saveStaff()">Save</button>
+        <button class="btn" onclick="hideStaffForm()">Cancel</button>
+      </div>
+    </div>
+    <div id="staff-list"></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     APP
-═══════════════════════════════════════════ -->
-<div id="app">
-  <header>
-    <div class="header-logo">Caddie<span>.</span></div>
-    <div class="header-actions">
-      <button class="icon-btn" onclick="showSection('settings')" title="Settings">⚙</button>
-      <button class="icon-btn" onclick="lockApp()" title="Lock">🔒</button>
-    </div>
-  </header>
-
-  <nav>
-    <button class="nav-tab active" onclick="showSection('log')">Log Round</button>
-    <button class="nav-tab" onclick="showSection('history')">History</button>
-    <button class="nav-tab" onclick="showSection('staff')">Staff Notes</button>
-    <button class="nav-tab" onclick="showSection('settings')">Settings</button>
-  </nav>
-
-  <main>
-
-    <!-- LOG ROUND -->
-    <div id="sec-log" class="section active">
-      <div class="section-header">
-        <div class="section-heading">New Round</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Round details</div>
-        <div class="field-grid">
-          <div class="field">
-            <label>Course / Club <span class="req">*</span></label>
-            <div class="input-wrap">
-              <input type="text" id="f-course" placeholder="e.g. Bethpage Black" />
-              <button class="mic-btn" id="mic-f-course" onclick="toggleMic('f-course')" title="Dictate">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Date</label>
-            <input type="date" id="f-date" />
-          </div>
-        </div>
-        <div class="field-grid three">
-          <div class="field">
-            <label>Holes</label>
-            <select id="f-holes">
-              <option value="18">18 holes</option>
-              <option value="9">9 holes</option>
-              <option value="27">27 holes</option>
-              <option value="36">36 holes</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Score <span class="opt">(optional)</span></label>
-            <input type="number" id="f-score" placeholder="e.g. 82" />
-          </div>
-          <div class="field">
-            <label>Par <span class="opt">(optional)</span></label>
-            <input type="number" id="f-par" placeholder="e.g. 72" />
-          </div>
-        </div>
-        <div class="field-grid full" style="margin-bottom:0">
-          <div class="field">
-            <label>Playing Partners <span class="opt">(optional)</span></label>
-            <div class="input-wrap">
-              <input type="text" id="f-partners" placeholder="e.g. John, Mike, Sarah" />
-              <button class="mic-btn" id="mic-f-partners" onclick="toggleMic('f-partners')" title="Dictate">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Meals & Expenses <span class="card-subtitle">(optional)</span></div>
-        <div id="expense-list"></div>
-        <button class="btn" onclick="addExpRow()">+ Add expense</button>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Round Notes <span class="card-subtitle">(optional)</span></div>
-        <div class="input-wrap" style="align-items:flex-start">
-          <textarea id="f-notes" placeholder="How'd it go? Highlights, course conditions, memorable shots..."></textarea>
-          <button class="mic-btn" id="mic-f-notes" onclick="toggleMic('f-notes')" title="Dictate" style="margin-top:2px">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </div>
-        <div class="voice-hint">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor" opacity="0.4"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/></svg>
-          Tap the mic icon next to any field to dictate
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn primary" onclick="saveRound()">Save Round</button>
-        <button class="btn" onclick="clearForm()">Clear</button>
-        <span id="save-msg" class="flash"></span>
-      </div>
-    </div>
-
-    <!-- HISTORY -->
-    <div id="sec-history" class="section">
-      <div class="section-header">
-        <div class="section-heading">History</div>
-      </div>
-      <div class="metrics">
-        <div class="metric"><div class="metric-val" id="m-rounds">0</div><div class="metric-lbl">Rounds</div></div>
-        <div class="metric"><div class="metric-val" id="m-best">—</div><div class="metric-lbl">Best</div></div>
-        <div class="metric"><div class="metric-val" id="m-avg">—</div><div class="metric-lbl">Average</div></div>
-        <div class="metric"><div class="metric-val" id="m-spent">$0</div><div class="metric-lbl">Spent</div></div>
-      </div>
-      <div id="rounds-list"></div>
-    </div>
-
-    <!-- STAFF NOTES -->
-    <div id="sec-staff" class="section">
-      <div class="section-header">
-        <div class="section-heading">Staff Notes</div>
-        <button class="btn primary" onclick="showStaffForm()">+ Add Person</button>
-      </div>
-      <div id="staff-form" style="display:none" class="card">
-        <div class="card-title" id="staff-form-title">Add staff member</div>
-        <div class="field-grid">
-          <div class="field">
-            <label>Name <span class="req">*</span></label>
-            <div class="input-wrap">
-              <input type="text" id="s-name" placeholder="First & last name" />
-              <button class="mic-btn" id="mic-s-name" onclick="toggleMic('s-name')" title="Dictate">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Role / Club <span class="opt">(optional)</span></label>
-            <div class="input-wrap">
-              <input type="text" id="s-role" placeholder="e.g. Starter at Bethpage" />
-              <button class="mic-btn" id="mic-s-role" onclick="toggleMic('s-role')" title="Dictate">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="field-grid full">
-          <div class="field">
-            <label>Notes <span class="opt">(optional)</span></label>
-            <div class="input-wrap" style="align-items:flex-start">
-              <textarea id="s-notes" placeholder="Appearance, personality, how you met, things they mentioned..."></textarea>
-              <button class="mic-btn" id="mic-s-notes" onclick="toggleMic('s-notes')" title="Dictate" style="margin-top:2px">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><line x1="8" y1="13.5" x2="8" y2="15.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="btn-row" style="margin-top:0.5rem">
-          <button class="btn primary" onclick="saveStaff()">Save</button>
-          <button class="btn" onclick="hideStaffForm()">Cancel</button>
-        </div>
-      </div>
-      <div id="staff-list"></div>
-    </div>
-
-    <!-- SETTINGS -->
-    <div id="sec-settings" class="section">
-      <div class="section-header">
-        <div class="section-heading">Settings</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Security</div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Change PIN</div>
-            <div class="settings-desc">Set a new 4-digit PIN to protect your data</div>
-          </div>
-          <button class="btn" onclick="startChangePin()">Change</button>
-        </div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Lock app</div>
-            <div class="settings-desc">Return to the PIN screen immediately</div>
-          </div>
-          <button class="btn" onclick="lockApp()">Lock now</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Data</div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Export all data</div>
-            <div class="settings-desc">Download a JSON backup of your rounds and staff notes</div>
-          </div>
-          <button class="btn" onclick="exportData()">Export</button>
-        </div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Erase all data</div>
-            <div class="settings-desc">Permanently delete all rounds, staff notes, and your PIN</div>
-          </div>
-          <button class="btn danger" onclick="eraseAll()">Erase</button>
-        </div>
-      </div>
-      <div class="card" style="background:var(--green-ghost)">
-        <div style="font-size:12px;color:var(--ink-faint);line-height:1.7;">
-          <strong style="color:var(--ink-soft);">About security:</strong> All data is encrypted with AES-256-GCM using a key derived from your PIN via PBKDF2 (250,000 iterations). Nothing leaves your device — there is no server, no account, and no cloud sync. Your data lives only in this browser's localStorage.
-        </div>
-      </div>
-    </div>
-
-  </main>
-</div>
-
 <script>
-// ══════════════════════════════════════════
-// CRYPTO HELPERS  (Web Crypto API — AES-256-GCM + PBKDF2)
-// ══════════════════════════════════════════
-var SALT_KEY  = 'cad_salt';
-var DATA_KEY  = 'cad_data';
-var HASH_KEY  = 'cad_hash';  // stores PIN verifier
+var ROUNDS_KEY = 'gt_rounds';
+var STAFF_KEY  = 'gt_staff';
+var rounds = [];
+var staffList = [];
+var expenseRows = [];
+var expCount = 0;
+var editingRoundId = null;
+var editingStaffId = null;
+var activeRecognition = null;
+var activeFieldId = null;
 
-function hexToBytes(hex) {
-  var a = new Uint8Array(hex.length / 2);
-  for (var i = 0; i < hex.length; i += 2) a[i/2] = parseInt(hex.substr(i,2),16);
-  return a;
-}
-function bytesToHex(buf) {
-  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-}
-function bytesToBase64(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
-function base64ToBytes(b64) {
-  var bin = atob(b64); var a = new Uint8Array(bin.length);
-  for (var i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i);
-  return a;
-}
-function randomBytes(n) { var a = new Uint8Array(n); crypto.getRandomValues(a); return a; }
-
-async function deriveKey(pin, saltBytes) {
-  var enc = new TextEncoder();
-  var keyMat = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name:'PBKDF2', salt:saltBytes, iterations:250000, hash:'SHA-256' },
-    keyMat,
-    { name:'AES-GCM', length:256 },
-    false,
-    ['encrypt','decrypt']
-  );
-}
-
-async function encryptData(plaintext, key) {
-  var iv  = randomBytes(12);
-  var enc = new TextEncoder();
-  var ct  = await crypto.subtle.encrypt({ name:'AES-GCM', iv:iv }, key, enc.encode(plaintext));
-  // store as iv_hex:ciphertext_base64
-  return bytesToHex(iv) + ':' + bytesToBase64(ct);
-}
-
-async function decryptData(stored, key) {
-  var parts = stored.split(':');
-  var iv    = hexToBytes(parts[0]);
-  var ct    = base64ToBytes(parts[1]);
-  var pt    = await crypto.subtle.decrypt({ name:'AES-GCM', iv:iv }, key, ct);
-  return new TextDecoder().decode(pt);
-}
-
-// Store a PIN verifier: PBKDF2-derived token stored as hex, used to check PIN without storing it
-async function makePinVerifier(pin, saltBytes) {
-  var enc = new TextEncoder();
-  var keyMat = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);
-  var bits = await crypto.subtle.deriveBits(
-    { name:'PBKDF2', salt:saltBytes, iterations:250000, hash:'SHA-256' },
-    keyMat, 256
-  );
-  return bytesToHex(bits);
-}
-
-// ══════════════════════════════════════════
-// APP STATE
-// ══════════════════════════════════════════
-var appKey     = null;   // CryptoKey for current session
-var appSalt    = null;   // Uint8Array
-var rounds     = [];
-var staffList  = [];
-var expRows    = [];
-var expCount   = 0;
-var editStaffId = null;
-var micRecog   = null;
-var micFieldId = null;
-
-// ══════════════════════════════════════════
-// PIN / LOCK LOGIC
-// ══════════════════════════════════════════
-var pinBuffer  = '';
-var pinMode    = 'enter';   // 'enter' | 'setup' | 'new1' | 'new2'
-var pinNew1    = '';
-var changePinFromSettings = false;
-
-function updateDots() {
-  for (var i=0;i<4;i++) {
-    document.getElementById('dot-'+i).classList.toggle('filled', i < pinBuffer.length);
-  }
-}
-
-function pinPress(digit) {
-  if (pinBuffer.length >= 4) return;
-  pinBuffer += digit;
-  updateDots();
-  if (pinBuffer.length === 4) setTimeout(handlePinComplete, 80);
-}
-
-function pinBackspace() {
-  if (pinBuffer.length > 0) { pinBuffer = pinBuffer.slice(0,-1); updateDots(); }
-  document.getElementById('lock-error').textContent = '';
-}
-
-async function handlePinComplete() {
-  var pin = pinBuffer;
-  pinBuffer = '';
-  updateDots();
-
-  if (pinMode === 'setup') {
-    // First-time setup: store salt + verifier + empty encrypted data
-    appSalt = randomBytes(16);
-    localStorage.setItem(SALT_KEY, bytesToHex(appSalt));
-    var verifier = await makePinVerifier(pin, appSalt);
-    localStorage.setItem(HASH_KEY, verifier);
-    appKey = await deriveKey(pin, appSalt);
-    await persistData();
-    unlockApp();
-
-  } else if (pinMode === 'new1') {
-    pinNew1 = pin;
-    pinMode = 'new2';
-    document.getElementById('lock-label').textContent = 'Confirm new PIN';
-    document.getElementById('lock-error').textContent = '';
-
-  } else if (pinMode === 'new2') {
-    if (pin !== pinNew1) {
-      document.getElementById('lock-error').textContent = 'PINs did not match. Try again.';
-      pinMode = 'new1';
-      pinNew1 = '';
-      document.getElementById('lock-label').textContent = 'Enter new PIN';
-    } else {
-      // Re-encrypt data with new PIN
-      appSalt = randomBytes(16);
-      localStorage.setItem(SALT_KEY, bytesToHex(appSalt));
-      var verifier2 = await makePinVerifier(pin, appSalt);
-      localStorage.setItem(HASH_KEY, verifier2);
-      appKey = await deriveKey(pin, appSalt);
-      await persistData();
-      if (changePinFromSettings) {
-        changePinFromSettings = false;
-        document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('app').classList.add('visible');
-        showSection('settings');
-      } else {
-        unlockApp();
-      }
-    }
-
-  } else {
-    // 'enter' mode — verify PIN
-    var saltHex = localStorage.getItem(SALT_KEY);
-    var storedVerifier = localStorage.getItem(HASH_KEY);
-    if (!saltHex || !storedVerifier) {
-      // No PIN set yet — treat as setup
-      pinMode = 'setup';
-      pinBuffer = pin;
-      await handlePinComplete();
-      return;
-    }
-    var saltBytes = hexToBytes(saltHex);
-    var verifier3 = await makePinVerifier(pin, saltBytes);
-    if (verifier3 !== storedVerifier) {
-      document.getElementById('lock-error').textContent = 'Incorrect PIN. Try again.';
-    } else {
-      appSalt = saltBytes;
-      appKey  = await deriveKey(pin, saltBytes);
-      await loadData();
-      unlockApp();
-    }
-  }
-}
-
-function unlockApp() {
-  document.getElementById('lock-screen').style.display = 'none';
-  document.getElementById('app').classList.add('visible');
-  renderRounds();
-  renderStaff();
-  setDefaultDate();
-}
-
-function lockApp() {
-  document.getElementById('app').classList.remove('visible');
-  document.getElementById('lock-screen').style.display = 'flex';
-  appKey = null;
-  pinBuffer = '';
-  pinMode = 'enter';
-  updateDots();
-  document.getElementById('lock-label').textContent = 'Enter your PIN';
-  document.getElementById('lock-error').textContent = '';
-}
-
-function startChangePin() {
-  changePinFromSettings = true;
-  pinMode = 'new1';
-  pinBuffer = '';
-  updateDots();
-  document.getElementById('lock-label').textContent = 'Enter new PIN';
-  document.getElementById('lock-error').textContent = '';
-  document.getElementById('app').classList.remove('visible');
-  document.getElementById('lock-screen').style.display = 'flex';
-}
-
-// ══════════════════════════════════════════
-// PERSIST / LOAD
-// ══════════════════════════════════════════
-async function persistData() {
-  var payload = JSON.stringify({ rounds: rounds, staff: staffList });
-  var encrypted = await encryptData(payload, appKey);
-  localStorage.setItem(DATA_KEY, encrypted);
-}
-
-async function loadData() {
-  var stored = localStorage.getItem(DATA_KEY);
-  if (!stored) { rounds = []; staffList = []; return; }
-  try {
-    var plain = await decryptData(stored, appKey);
-    var obj = JSON.parse(plain);
-    rounds    = obj.rounds || [];
-    staffList = obj.staff  || [];
-  } catch(e) { rounds = []; staffList = []; }
-}
-
-// ══════════════════════════════════════════
-// INIT — check if first time or returning
-// ══════════════════════════════════════════
-(function init() {
-  var hasSalt    = !!localStorage.getItem(SALT_KEY);
-  var hasVerifier = !!localStorage.getItem(HASH_KEY);
-  if (!hasSalt || !hasVerifier) {
-    pinMode = 'setup';
-    document.getElementById('lock-label').textContent = 'Create a 4-digit PIN';
-    document.getElementById('lock-setup-note').textContent = 'You\'ll use this PIN to access your golf tracker on this device.';
-  } else {
-    pinMode = 'enter';
-    document.getElementById('lock-label').textContent = 'Enter your PIN';
-    document.getElementById('lock-setup-note').textContent = '';
-  }
-})();
-
-// ══════════════════════════════════════════
-// FORM HELPERS
-// ══════════════════════════════════════════
+function load(key) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : []; } catch(e) { return []; } }
+function save(key, data) { try { localStorage.setItem(key, JSON.stringify(data)); return true; } catch(e) { return false; } }
 function val(id) { var el = document.getElementById(id); return el ? el.value : ''; }
-function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = v; }
-
-function setDefaultDate() { setVal('f-date', new Date().toISOString().split('T')[0]); }
+function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
 
 function flash(msg, isErr) {
   var el = document.getElementById('save-msg');
   el.textContent = msg;
   el.className = 'flash ' + (isErr ? 'err' : 'ok');
-  if (!isErr) setTimeout(function(){ el.className = 'flash'; el.textContent = ''; }, 2500);
+  el.style.display = 'inline-block';
+  if (!isErr) setTimeout(function(){ el.style.display = 'none'; }, 2500);
 }
 
-// ══════════════════════════════════════════
-// EXPENSE ROWS
-// ══════════════════════════════════════════
-function addExpRow() {
-  expCount++;
-  var id = expCount;
-  expRows.push(id);
-  var div = document.createElement('div');
-  div.className = 'exp-row';
-  div.id = 'exp-row-' + id;
-  div.innerHTML =
-    '<input type="text" class="desc" id="exp-desc-'+id+'" placeholder="Description (e.g. Lunch, greens fee)" />' +
-    '<input type="number" class="amt" id="exp-amt-'+id+'" placeholder="$0.00" step="0.01" min="0" />' +
-    '<button class="btn danger" onclick="removeExpRow('+id+')" style="padding:6px 10px;flex-shrink:0;">✕</button>';
-  document.getElementById('expense-list').appendChild(div);
+function init() {
+  rounds    = load(ROUNDS_KEY);
+  staffList = load(STAFF_KEY);
+  setVal('f-date', new Date().toISOString().split('T')[0]);
+  renderRounds();
+  renderStaff();
 }
 
-function removeExpRow(id) {
-  expRows = expRows.filter(function(r){ return r!==id; });
-  var row = document.getElementById('exp-row-'+id); if (row) row.remove();
-}
-
-// ══════════════════════════════════════════
-// SAVE / CLEAR ROUND
-// ══════════════════════════════════════════
-async function saveRound() {
+function saveRound() {
   var course = val('f-course').trim();
   if (!course) { flash('Please enter a course name.', true); return; }
-
   var exps = [];
-  for (var i=0; i<expRows.length; i++) {
-    var id   = expRows[i];
-    var desc = val('exp-desc-'+id).trim();
-    var amt  = parseFloat(val('exp-amt-'+id)) || 0;
-    if (desc || amt > 0) exps.push({ desc:desc, amount:amt });
+  for (var i = 0; i < expenseRows.length; i++) {
+    var eid  = expenseRows[i];
+    var desc = val('exp-desc-' + eid).trim();
+    var amt  = parseFloat(val('exp-amt-' + eid)) || 0;
+    if (desc || amt > 0) exps.push({ desc: desc, amount: amt });
   }
-
   var round = {
-    id:       Date.now(),
+    id:       editingRoundId || Date.now(),
     course:   course,
     date:     val('f-date'),
     holes:    val('f-holes'),
@@ -998,209 +344,237 @@ async function saveRound() {
     notes:    val('f-notes').trim(),
     expenses: exps
   };
-
-  rounds.unshift(round);
-  try {
-    await persistData();
-    flash('Round saved!', false);
-    clearForm();
-    renderRounds();
-  } catch(e) {
-    rounds.shift();
-    flash('Save failed: ' + (e.message||'unknown error'), true);
+  if (editingRoundId) {
+    rounds = rounds.map(function(r){ return r.id === editingRoundId ? round : r; });
+  } else {
+    rounds.unshift(round);
   }
+  if (save(ROUNDS_KEY, rounds)) {
+    flash(editingRoundId ? 'Round updated!' : 'Round saved!', false);
+    cancelEdit();
+    renderRounds();
+  } else {
+    if (!editingRoundId) rounds.shift();
+    flash('Save failed — storage may be full or blocked.', true);
+  }
+}
+
+function editRound(id) {
+  var r = rounds.find(function(x){ return x.id === id; });
+  if (!r) return;
+  editingRoundId = id;
+  setVal('f-course',   r.course);
+  setVal('f-date',     r.date);
+  setVal('f-holes',    r.holes);
+  setVal('f-score',    r.score);
+  setVal('f-par',      r.par);
+  setVal('f-partners', r.partners);
+  setVal('f-notes',    r.notes);
+  expenseRows = []; expCount = 0;
+  document.getElementById('expense-list').innerHTML = '';
+  (r.expenses || []).forEach(function(e) {
+    expCount++;
+    var eid = expCount;
+    expenseRows.push(eid);
+    var div = document.createElement('div');
+    div.className = 'expense-row';
+    div.id = 'exp-row-' + eid;
+    div.innerHTML =
+      '<input type="text" class="desc" id="exp-desc-'+eid+'" value="'+e.desc+'" placeholder="Description" />' +
+      '<input type="number" class="amt" id="exp-amt-'+eid+'" value="'+(e.amount||'')+'" placeholder="$0.00" step="0.01" min="0" />' +
+      '<button class="btn danger" onclick="removeExpenseRow('+eid+')" style="padding:6px 10px;flex-shrink:0;">✕</button>';
+    document.getElementById('expense-list').appendChild(div);
+  });
+  document.getElementById('form-title').textContent = 'Edit round';
+  document.getElementById('save-btn').textContent = 'Update round';
+  document.getElementById('edit-banner').style.display = 'block';
+  document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+  showSection('log', document.querySelector('.nav-btn'));
+  window.scrollTo(0, 0);
+}
+
+function cancelEdit() {
+  editingRoundId = null;
+  document.getElementById('form-title').textContent = 'New round';
+  document.getElementById('save-btn').textContent = 'Save round';
+  document.getElementById('edit-banner').style.display = 'none';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+  clearForm();
 }
 
 function clearForm() {
   ['f-course','f-score','f-par','f-partners','f-notes'].forEach(function(id){ setVal(id,''); });
-  setVal('f-holes','18');
-  expRows = []; expCount = 0;
+  setVal('f-holes', '18');
+  expenseRows = []; expCount = 0;
   document.getElementById('expense-list').innerHTML = '';
-  setDefaultDate();
+  setVal('f-date', new Date().toISOString().split('T')[0]);
 }
 
-// ══════════════════════════════════════════
-// RENDER ROUNDS
-// ══════════════════════════════════════════
+function addExpenseRow() {
+  expCount++;
+  var id = expCount;
+  expenseRows.push(id);
+  var div = document.createElement('div');
+  div.className = 'expense-row';
+  div.id = 'exp-row-' + id;
+  div.innerHTML =
+    '<input type="text" class="desc" id="exp-desc-'+id+'" placeholder="Description (e.g. Lunch, greens fee, cart)" />' +
+    '<input type="number" class="amt" id="exp-amt-'+id+'" placeholder="$0.00" step="0.01" min="0" />' +
+    '<button class="btn danger" onclick="removeExpenseRow('+id+')" style="padding:6px 10px;flex-shrink:0;">✕</button>';
+  document.getElementById('expense-list').appendChild(div);
+}
+
+function removeExpenseRow(id) {
+  expenseRows = expenseRows.filter(function(r){ return r !== id; });
+  var row = document.getElementById('exp-row-' + id); if (row) row.remove();
+}
+
 function renderRounds() {
   var list = document.getElementById('rounds-list'); if (!list) return;
   var scores = rounds.filter(function(r){ return r.score && !isNaN(+r.score); });
   document.getElementById('m-rounds').textContent = rounds.length;
-  document.getElementById('m-best').textContent   = scores.length ? Math.min.apply(null,scores.map(function(r){ return +r.score; })) : '—';
-  document.getElementById('m-avg').textContent    = scores.length ? Math.round(scores.reduce(function(a,r){ return a+(+r.score); },0)/scores.length) : '—';
-  var spent = rounds.reduce(function(a,r){ return a+(r.expenses||[]).reduce(function(b,e){ return b+(e.amount||0); },0); },0);
-  document.getElementById('m-spent').textContent  = '$'+Math.round(spent);
+  document.getElementById('m-best').textContent   = scores.length ? Math.min.apply(null, scores.map(function(r){ return +r.score; })) : '—';
+  document.getElementById('m-avg').textContent    = scores.length ? Math.round(scores.reduce(function(a,r){ return a + +r.score; },0) / scores.length) : '—';
+  var totalSpent = rounds.reduce(function(a,r){ return a+(r.expenses||[]).reduce(function(b,e){ return b+(e.amount||0); },0); },0);
+  document.getElementById('m-spent').textContent  = '$' + totalSpent.toFixed(0);
 
-  if (!rounds.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">⛳</div>No rounds yet.<br>Log your first round to get started.</div>';
-    return;
-  }
+  if (!rounds.length) { list.innerHTML = '<div class="empty">No rounds yet — log your first one!</div>'; return; }
 
-  list.innerHTML = rounds.map(function(r) {
-    var expTotal = (r.expenses||[]).reduce(function(a,e){ return a+(e.amount||0); },0);
-    var expItems = (r.expenses||[]).filter(function(e){ return e.desc||e.amount; })
-      .map(function(e){ return e.desc+(e.amount?': $'+e.amount.toFixed(2):''); }).join(' · ');
-    var rel = (r.score && r.par) ? (+r.score - +r.par) : null;
-    var relStr = rel!==null ? (rel>0?'+'+rel:rel===0?'E':''+rel) : '';
-    var relClass = rel!==null ? (rel>0?'over':rel===0?'even':'score') : 'score';
-    var dateStr = r.date ? new Date(r.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-    return '<div class="round-item">' +
-      '<div class="round-header">' +
-        '<div><div class="round-course">'+escHtml(r.course)+'</div><div class="round-date">'+dateStr+'</div></div>' +
-        '<button class="btn danger" onclick="deleteRound('+r.id+')" style="padding:4px 10px;font-size:12px;">Delete</button>' +
+  var months = {};
+  var monthOrder = [];
+  rounds.forEach(function(r) {
+    var key = r.date ? r.date.substring(0,7) : 'unknown';
+    if (!months[key]) { months[key] = []; monthOrder.push(key); }
+    months[key].push(r);
+  });
+  monthOrder = monthOrder.filter(function(v,i,a){ return a.indexOf(v)===i; });
+
+  list.innerHTML = monthOrder.map(function(mkey) {
+    var mrs = months[mkey];
+    var mSpent = mrs.reduce(function(a,r){ return a+(r.expenses||[]).reduce(function(b,e){ return b+(e.amount||0); },0); },0);
+    var mScores = mrs.filter(function(r){ return r.score && !isNaN(+r.score); });
+    var mLabel = mkey === 'unknown' ? 'Unknown date' : new Date(mkey+'-15').toLocaleDateString('en-US',{month:'long',year:'numeric'});
+
+    var roundsHtml = mrs.map(function(r) {
+      var expTotal = (r.expenses||[]).reduce(function(a,e){ return a+(e.amount||0); },0);
+      var expItems = (r.expenses||[]).filter(function(e){ return e.desc||e.amount; }).map(function(e){ return e.desc+(e.amount?': $'+e.amount.toFixed(2):''); }).join(' · ');
+      var rel = (r.score && r.par) ? (+r.score - +r.par) : null;
+      var relStr = rel !== null ? (rel > 0 ? '+'+rel : rel===0 ? 'E' : ''+rel) : '';
+      var dateStr = r.date ? new Date(r.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+      return '<div class="round-item">' +
+        '<div class="round-header">' +
+          '<div><div class="round-title">'+r.course+'</div><div class="round-date">'+dateStr+'</div></div>' +
+          '<div class="round-actions">' +
+            '<button class="btn" onclick="editRound('+r.id+')" style="padding:4px 8px;font-size:12px;">Edit</button>' +
+            '<button class="btn danger" onclick="deleteRound('+r.id+')" style="padding:4px 8px;font-size:12px;">Delete</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="round-meta">' +
+          '<span class="badge">'+r.holes+' holes</span>' +
+          (r.score ? '<span class="badge score">'+r.score+(relStr?' ('+relStr+')':'')+'</span>' : '') +
+          (r.partners ? '<span class="badge">With: '+r.partners+'</span>' : '') +
+          (expTotal > 0 ? '<span class="badge expense">$'+expTotal.toFixed(2)+'</span>' : '') +
+        '</div>' +
+        (expItems ? '<div style="font-size:12px;color:#6b6b66;margin-top:4px;">'+expItems+'</div>' : '') +
+        (r.notes  ? '<div style="font-size:13px;color:#6b6b66;margin-top:6px;">'+r.notes+'</div>' : '') +
+      '</div>';
+    }).join('');
+
+    return '<div class="month-block">' +
+      '<div class="month-header">' +
+        '<div class="month-name">'+mLabel+'</div>' +
+        '<div class="month-summary">' +
+          '<div class="month-stat"><span>'+mrs.length+'</span> round'+(mrs.length!==1?'s':'')+'</div>' +
+          (mScores.length ? '<div class="month-stat">avg <span>'+Math.round(mScores.reduce(function(a,r){return a+ +r.score;},0)/mScores.length)+'</span></div>' : '') +
+          (mSpent > 0 ? '<div class="month-stat">spent <span>$'+mSpent.toFixed(2)+'</span></div>' : '') +
+        '</div>' +
       '</div>' +
-      '<div class="badge-row">' +
-        '<span class="badge">'+r.holes+' holes</span>' +
-        (r.score ? '<span class="badge '+relClass+'">'+r.score+(relStr?' ('+relStr+')':'')+'</span>' : '') +
-        (r.partners ? '<span class="badge">'+escHtml(r.partners)+'</span>' : '') +
-        (expTotal>0 ? '<span class="badge money">$'+expTotal.toFixed(2)+'</span>' : '') +
-      '</div>' +
-      (expItems ? '<div class="round-expenses">'+escHtml(expItems)+'</div>' : '') +
-      (r.notes  ? '<div class="round-notes">'+escHtml(r.notes)+'</div>' : '') +
+      '<div>'+roundsHtml+'</div>' +
     '</div>';
   }).join('');
 }
 
-async function deleteRound(id) {
-  if (!confirm('Delete this round?')) return;
-  rounds = rounds.filter(function(r){ return r.id!==id; });
-  await persistData();
-  renderRounds();
+function deleteRound(id) {
+  rounds = rounds.filter(function(r){ return r.id !== id; });
+  save(ROUNDS_KEY, rounds); renderRounds();
 }
 
-// ══════════════════════════════════════════
-// STAFF
-// ══════════════════════════════════════════
+function showSection(name, btn) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('sec-'+name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'history') renderRounds();
+}
+
 function showStaffForm() {
-  editStaffId = null;
+  editingStaffId = null;
   ['s-name','s-role','s-notes'].forEach(function(id){ setVal(id,''); });
-  document.getElementById('staff-form-title').textContent = 'Add staff member';
   document.getElementById('staff-form').style.display = 'block';
 }
-function hideStaffForm() { document.getElementById('staff-form').style.display = 'none'; editStaffId = null; }
+function hideStaffForm() { document.getElementById('staff-form').style.display = 'none'; editingStaffId = null; }
 
-async function saveStaff() {
+function saveStaff() {
   var name = val('s-name').trim(); if (!name) { document.getElementById('s-name').focus(); return; }
-  var person = { id:editStaffId||Date.now(), name:name, role:val('s-role').trim(), notes:val('s-notes').trim() };
-  if (editStaffId) { staffList = staffList.map(function(s){ return s.id===editStaffId?person:s; }); }
+  var person = { id: editingStaffId || Date.now(), name: name, role: val('s-role').trim(), notes: val('s-notes').trim() };
+  if (editingStaffId) { staffList = staffList.map(function(s){ return s.id===editingStaffId?person:s; }); }
   else { staffList.push(person); }
-  await persistData();
-  hideStaffForm();
-  renderStaff();
+  save(STAFF_KEY, staffList); hideStaffForm(); renderStaff();
 }
 
 function editStaff(id) {
   var p = staffList.find(function(s){ return s.id===id; }); if (!p) return;
-  editStaffId = id;
-  setVal('s-name', p.name); setVal('s-role', p.role||''); setVal('s-notes', p.notes||'');
-  document.getElementById('staff-form-title').textContent = 'Edit staff member';
+  editingStaffId = id;
+  setVal('s-name', p.name); setVal('s-role', p.role); setVal('s-notes', p.notes);
   document.getElementById('staff-form').style.display = 'block';
-  document.getElementById('s-name').focus();
 }
 
-async function deleteStaff(id) {
-  if (!confirm('Delete this person?')) return;
+function deleteStaff(id) {
   staffList = staffList.filter(function(s){ return s.id!==id; });
-  await persistData();
-  renderStaff();
+  save(STAFF_KEY, staffList); renderStaff();
 }
 
-function initials(name) { return name.split(' ').slice(0,2).map(function(n){ return (n[0]||'').toUpperCase(); }).join(''); }
+function initials(name) { return name.split(' ').slice(0,2).map(function(n){ return n[0]||''; }).join('').toUpperCase(); }
 
 function renderStaff() {
   var list = document.getElementById('staff-list'); if (!list) return;
-  if (!staffList.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-icon">👤</div>No staff notes yet.<br>Add people you meet on the course to remember them next time.</div>';
-    return;
-  }
+  if (!staffList.length) { list.innerHTML = '<div class="empty">No staff notes yet. Add someone you meet on the course!</div>'; return; }
   list.innerHTML = staffList.map(function(p) {
     return '<div class="staff-item">' +
       '<div class="avatar">'+initials(p.name)+'</div>' +
       '<div class="staff-info">' +
-        '<div class="staff-name">'+escHtml(p.name)+'</div>' +
-        (p.role  ? '<div class="staff-role">'+escHtml(p.role)+'</div>'  : '') +
-        (p.notes ? '<div class="staff-note">'+escHtml(p.notes)+'</div>' : '') +
+        '<div class="staff-name">'+p.name+'</div>' +
+        (p.role  ? '<div class="staff-role">'+p.role+'</div>' : '') +
+        (p.notes ? '<div class="staff-note">'+p.notes+'</div>' : '') +
       '</div>' +
-      '<div class="staff-actions">' +
-        '<button class="btn" onclick="editStaff('+p.id+')" style="padding:5px 12px;font-size:12px;">Edit</button>' +
-        '<button class="btn danger" onclick="deleteStaff('+p.id+')" style="padding:5px 12px;font-size:12px;">Delete</button>' +
+      '<div style="display:flex;gap:6px;flex-shrink:0;">' +
+        '<button class="btn" onclick="editStaff('+p.id+')" style="padding:5px 10px;font-size:12px;">Edit</button>' +
+        '<button class="btn danger" onclick="deleteStaff('+p.id+')" style="padding:5px 10px;font-size:12px;">Delete</button>' +
       '</div>' +
     '</div>';
   }).join('');
 }
 
-// ══════════════════════════════════════════
-// SECTION NAV
-// ══════════════════════════════════════════
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
-  document.querySelectorAll('.nav-tab').forEach(function(b){ b.classList.remove('active'); });
-  var sec = document.getElementById('sec-'+name);
-  if (sec) sec.classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(function(b){
-    if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'"+name+"'")!==-1) b.classList.add('active');
-  });
-  if (name==='history') renderRounds();
-}
-
-// ══════════════════════════════════════════
-// EXPORT / ERASE
-// ══════════════════════════════════════════
-function exportData() {
-  var data = { exported: new Date().toISOString(), rounds: rounds, staff: staffList };
-  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href = url; a.download = 'caddie-backup-' + new Date().toISOString().split('T')[0] + '.json';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function eraseAll() {
-  if (!confirm('This will permanently delete ALL your data including rounds, staff notes, and your PIN. This cannot be undone.\n\nAre you sure?')) return;
-  localStorage.removeItem(SALT_KEY);
-  localStorage.removeItem(DATA_KEY);
-  localStorage.removeItem(HASH_KEY);
-  rounds = []; staffList = [];
-  lockApp();
-  pinMode = 'setup';
-  document.getElementById('lock-label').textContent = 'Create a new PIN';
-  document.getElementById('lock-setup-note').textContent = 'All data has been erased.';
-}
-
-// ══════════════════════════════════════════
-// VOICE DICTATION
-// ══════════════════════════════════════════
 function toggleMic(fieldId) {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Voice input requires Chrome or Safari.');
-    return;
-  }
-  if (micRecog && micFieldId===fieldId) { micRecog.stop(); return; }
-  if (micRecog) { micRecog.stop(); setMicState(micFieldId, false); }
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert('Voice input not supported. Try Chrome or Safari.'); return; }
+  if (activeRecognition && activeFieldId === fieldId) { activeRecognition.stop(); return; }
+  if (activeRecognition) { activeRecognition.stop(); setMicState(activeFieldId, false); }
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   var rec = new SR();
   rec.continuous = true; rec.interimResults = false; rec.lang = 'en-US';
-  micFieldId = fieldId; micRecog = rec;
+  activeFieldId = fieldId; activeRecognition = rec;
   setMicState(fieldId, true);
   rec.onresult = function(e) {
     var t = Array.from(e.results).map(function(r){ return r[0].transcript; }).join(' ').trim();
     var el = document.getElementById(fieldId);
     if (el) el.value = el.value ? el.value+' '+t : t;
   };
-  rec.onerror = rec.onend = function(){ setMicState(micFieldId, false); micRecog=null; micFieldId=null; };
+  rec.onerror = rec.onend = function(){ setMicState(fieldId, false); activeRecognition = null; activeFieldId = null; };
   rec.start();
 }
-function setMicState(id, on) { var b=document.getElementById('mic-'+id); if(b) b.classList.toggle('recording',on); }
+function setMicState(fieldId, on) { var b = document.getElementById('mic-'+fieldId); if (b) b.classList.toggle('recording', on); }
 
-// ══════════════════════════════════════════
-// XSS SAFETY
-// ══════════════════════════════════════════
-function escHtml(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+init();
 </script>
 </body>
 </html>
