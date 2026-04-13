@@ -6,144 +6,181 @@
   <title>Golf Tracker</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg: #ffffff;
-      --bg2: #f5f5f4;
-      --bg3: #ededeb;
-      --text: #1a1a18;
-      --text2: #6b6b66;
-      --text3: #a0a09a;
-      --border: rgba(0,0,0,0.12);
-      --border2: rgba(0,0,0,0.22);
-      --radius: 8px;
-      --radius-lg: 12px;
-      --info-bg: #e6f1fb;
-      --info-text: #185fa5;
-      --info-border: rgba(24,95,165,0.3);
-      --warn-bg: #faeeda;
-      --warn-text: #854f0b;
-      --warn-border: rgba(133,79,11,0.3);
-      --success-bg: #eaf3de;
-      --success-text: #3b6d11;
-      --danger-bg: #fcebeb;
-      --danger-text: #a32d2d;
-      --danger-border: rgba(163,45,45,0.3);
+      --bg:          #ffffff;
+      --bg2:         #f4f3ef;
+      --bg3:         #eaf3de;
+      --text:        #1a1a18;
+      --text2:       #5f5e5a;
+      --text3:       #888780;
+      --border:      rgba(0,0,0,0.13);
+      --border2:     rgba(0,0,0,0.25);
+      --radius:      8px;
+      --radius-lg:   12px;
+      --green-50:    #eaf3de;
+      --green-100:   #c0dd97;
+      --green-600:   #3b6d11;
+      --green-800:   #27500a;
+      --teal-50:     #e1f5ee;
+      --teal-100:    #9fe1cb;
+      --teal-600:    #0f6e56;
+      --teal-800:    #085041;
+      --amber-50:    #faeeda;
+      --amber-100:   #fac775;
+      --amber-600:   #854f0b;
+      --amber-800:   #633806;
+      --blue-50:     #e6f1fb;
+      --blue-100:    #b5d4f4;
+      --blue-600:    #185fa5;
+      --blue-800:    #0c447c;
+      --red-50:      #fcebeb;
+      --red-100:     #f7c1c1;
+      --red-600:     #a32d2d;
+      --red-800:     #791f1f;
       --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
+
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #1e1e1c;
-        --bg2: #2a2a28;
-        --bg3: #333330;
-        --text: #f0ede8;
-        --text2: #a0a09a;
-        --text3: #6b6b66;
-        --border: rgba(255,255,255,0.12);
-        --border2: rgba(255,255,255,0.22);
-        --info-bg: #042c53;
-        --info-text: #85b7eb;
-        --info-border: rgba(133,183,235,0.3);
-        --warn-bg: #412402;
-        --warn-text: #fac775;
-        --warn-border: rgba(250,199,117,0.3);
-        --success-bg: #173404;
-        --success-text: #c0dd97;
-        --danger-bg: #501313;
-        --danger-text: #f09595;
-        --danger-border: rgba(240,149,149,0.3);
+        --bg:       #1c1f1a;
+        --bg2:      #252820;
+        --bg3:      #1a2016;
+        --text:     #e8f0df;
+        --text2:    #8fac78;
+        --text3:    #5a7048;
+        --border:   rgba(255,255,255,0.11);
+        --border2:  rgba(255,255,255,0.22);
+        --green-50:  #173404;
+        --green-100: #27500a;
+        --green-600: #97c459;
+        --green-800: #c0dd97;
+        --teal-50:   #04342c;
+        --teal-100:  #085041;
+        --teal-600:  #5dcaa5;
+        --teal-800:  #9fe1cb;
+        --amber-50:  #412402;
+        --amber-100: #633806;
+        --amber-600: #ef9f27;
+        --amber-800: #fac775;
+        --blue-50:   #042c53;
+        --blue-100:  #0c447c;
+        --blue-600:  #85b7eb;
+        --blue-800:  #b5d4f4;
+        --red-50:    #501313;
+        --red-100:   #791f1f;
+        --red-600:   #f09595;
+        --red-800:   #f7c1c1;
       }
     }
+
     body { font-family: var(--font); background: var(--bg3); color: var(--text); min-height: 100vh; }
     .app { max-width: 780px; margin: 0 auto; padding: 1.5rem 1rem; }
-    h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
-    h1 svg { opacity: 0.7; }
-    nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--border); padding-bottom: 1rem; }
-    .nav-btn { padding: 6px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: transparent; cursor: pointer; font-size: 13px; color: var(--text2); font-family: var(--font); transition: all 0.15s; }
-    .nav-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
-    .nav-btn:hover:not(.active) { background: var(--bg2); }
+
+    header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+    header h1 { font-size: 20px; font-weight: 500; color: var(--green-800); }
+    .logo-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--green-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--green-100); padding-bottom: 1rem; }
+    .nav-btn { padding: 6px 16px; border: 1px solid var(--border2); border-radius: 20px; background: transparent; cursor: pointer; font-size: 13px; color: var(--text2); font-family: var(--font); transition: all 0.15s; }
+    .nav-btn.active { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+    .nav-btn:hover:not(.active) { background: var(--green-50); border-color: var(--green-100); }
+
     .section { display: none; }
     .section.active { display: block; }
-    .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+
+    .card { background: var(--bg); border: 1px solid var(--green-100); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .field-row.three { grid-template-columns: 1fr 1fr 1fr; }
     .field-row.full { grid-template-columns: 1fr; }
     label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-    input, select, textarea {
-      width: 100%; font-family: var(--font); font-size: 14px; color: var(--text);
-      background: var(--bg2); border: 0.5px solid var(--border);
-      border-radius: var(--radius); padding: 8px 10px; outline: none;
-    }
-    input:focus, select:focus, textarea:focus { border-color: var(--border2); }
+    input, select, textarea { width: 100%; font-family: var(--font); font-size: 14px; color: var(--text); background: var(--bg2); border: 1px solid var(--green-100); border-radius: var(--radius); padding: 8px 10px; outline: none; transition: border-color 0.15s; }
+    input:focus, select:focus, textarea:focus { border-color: var(--green-600); }
     textarea { resize: vertical; min-height: 70px; }
-    .btn {
-      padding: 8px 16px; border-radius: var(--radius); border: 0.5px solid var(--border2);
-      background: transparent; cursor: pointer; font-size: 13px;
-      font-family: var(--font); color: var(--text); transition: all 0.15s;
-    }
+
+    .btn { padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border2); background: transparent; cursor: pointer; font-size: 13px; font-family: var(--font); color: var(--text); transition: all 0.15s; }
     .btn:hover { background: var(--bg2); }
-    .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
-    .btn.primary:hover { opacity: 0.85; }
-    .btn.danger { color: var(--danger-text); border-color: var(--danger-border); }
-    .btn.danger:hover { background: var(--danger-bg); }
-    .btn.mic {
-      width: 34px; height: 34px; padding: 0; display: flex;
-      align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0;
-    }
-    .btn.mic.recording { background: var(--danger-bg); border-color: var(--danger-border); animation: pulse 1s infinite; }
+    .btn.primary { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+    .btn.primary:hover { background: var(--green-800); border-color: var(--green-800); }
+    .btn.secondary { background: var(--teal-50); color: var(--teal-600); border-color: var(--teal-100); }
+    .btn.secondary:hover { background: var(--teal-100); }
+    .btn.danger { color: var(--red-600); border-color: var(--red-100); }
+    .btn.danger:hover { background: var(--red-50); }
+    .btn.mic { width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; border-color: var(--green-100); color: var(--green-600); }
+    .btn.mic:hover { background: var(--green-50); }
+    .btn.mic.recording { background: var(--red-50); border-color: var(--red-100); color: var(--red-600); animation: pulse 1s infinite; }
     @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
+
     .input-with-mic { display: flex; gap: 6px; align-items: flex-start; }
     .input-with-mic input, .input-with-mic textarea { flex: 1; }
+
     .metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.5rem; }
-    .metric { background: var(--bg2); border-radius: var(--radius); padding: 12px; }
-    .metric-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-    .metric-value { font-size: 22px; font-weight: 500; }
-    .round-item { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 10px; background: var(--bg); }
+    .metric { background: var(--bg); border: 1px solid var(--green-100); border-radius: var(--radius-lg); padding: 14px; }
+    .metric-label { font-size: 11px; color: var(--green-600); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .metric-value { font-size: 24px; font-weight: 500; color: var(--green-800); }
+
+    .round-item { border: 1px solid var(--green-100); border-left: 3px solid var(--green-600); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 10px; background: var(--bg); }
     .round-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .round-title { font-weight: 500; font-size: 15px; }
-    .round-date { font-size: 12px; color: var(--text2); }
-    .round-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
-    .badge { font-size: 11px; padding: 3px 8px; border-radius: var(--radius); background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); }
-    .badge.score { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
-    .badge.expense { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+    .round-title { font-weight: 500; font-size: 15px; color: var(--text); }
+    .round-date { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .round-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
     .round-actions { display: flex; gap: 6px; flex-shrink: 0; }
-    .staff-item { border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 10px; background: var(--bg); display: flex; gap: 12px; align-items: flex-start; }
-    .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--info-bg); display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 14px; color: var(--info-text); flex-shrink: 0; }
+
+    .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
+    .badge.holes  { background: var(--green-50);  color: var(--green-800);  border: 1px solid var(--green-100); }
+    .badge.score  { background: var(--teal-50);   color: var(--teal-800);   border: 1px solid var(--teal-100); }
+    .badge.people { background: var(--blue-50);   color: var(--blue-800);   border: 1px solid var(--blue-100); }
+    .badge.money  { background: var(--amber-50);  color: var(--amber-800);  border: 1px solid var(--amber-100); }
+
+    .staff-item { border: 1px solid var(--green-100); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 10px; background: var(--bg); display: flex; gap: 12px; align-items: flex-start; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--teal-50); display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 14px; color: var(--teal-600); flex-shrink: 0; border: 1px solid var(--teal-100); }
     .staff-info { flex: 1; min-width: 0; }
-    .staff-name { font-weight: 500; font-size: 15px; }
-    .staff-role { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .staff-name { font-weight: 500; font-size: 15px; color: var(--text); }
+    .staff-role { font-size: 12px; color: var(--teal-600); margin-bottom: 4px; }
     .staff-note { font-size: 13px; color: var(--text2); }
+
     .expense-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
     .expense-row input.desc { flex: 1; }
-    .expense-row input.amt { width: 90px; flex: none; }
-    .section-title { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
-    .empty { text-align: center; padding: 2rem; color: var(--text2); font-size: 14px; }
+    .expense-row input.amt { width: 100px; flex: none; }
+
+    .section-title { font-size: 16px; font-weight: 500; color: var(--green-800); margin-bottom: 1rem; }
+    .card-label { font-size: 14px; font-weight: 500; color: var(--green-800); margin-bottom: 12px; }
+    .opt { color: var(--text3); font-weight: 400; font-size: 11px; }
+    .req { color: var(--red-600); }
+
+    .empty { text-align: center; padding: 2.5rem; color: var(--text3); font-size: 14px; }
     .voice-hint { font-size: 11px; color: var(--text3); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
     .tab-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .flash { font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: var(--radius); }
-    .flash.ok  { background: var(--success-bg); color: var(--success-text); }
-    .flash.err { background: var(--danger-bg);  color: var(--danger-text); }
-    .card-label { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
-    .opt { color: var(--text3); font-weight: 400; font-size: 11px; }
-    .req { color: var(--danger-text); }
-    .edit-banner { background: var(--warn-bg); color: var(--warn-text); border: 0.5px solid var(--warn-border); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; margin-bottom: 1rem; display: none; }
-    .month-block { margin-bottom: 1.25rem; }
-    .month-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--border); margin-bottom: 8px; }
-    .month-name { font-size: 14px; font-weight: 500; }
-    .month-summary { display: flex; gap: 12px; align-items: center; }
-    .month-stat { font-size: 12px; color: var(--text2); }
-    .month-stat span { color: var(--text); font-weight: 500; }
-    @media (max-width: 500px) {
+
+    .flash { font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: var(--radius); }
+    .flash.ok  { background: var(--green-50); color: var(--green-800); border: 1px solid var(--green-100); }
+    .flash.err { background: var(--red-50);   color: var(--red-800);   border: 1px solid var(--red-100); }
+
+    .edit-banner { background: var(--amber-50); color: var(--amber-800); border: 1px solid var(--amber-100); border-radius: var(--radius); padding: 9px 14px; font-size: 13px; margin-bottom: 1rem; display: none; }
+
+    .month-block { margin-bottom: 1.5rem; }
+    .month-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--green-50); border: 1px solid var(--green-100); border-radius: var(--radius); margin-bottom: 10px; }
+    .month-name { font-size: 14px; font-weight: 500; color: var(--green-800); }
+    .month-summary { display: flex; gap: 14px; }
+    .month-stat { font-size: 12px; color: var(--green-600); }
+    .month-stat span { font-weight: 500; color: var(--green-800); }
+
+    @media (max-width: 520px) {
       .metrics { grid-template-columns: 1fr 1fr; }
       .field-row, .field-row.three { grid-template-columns: 1fr; }
+      .month-summary { gap: 8px; flex-wrap: wrap; }
     }
   </style>
 </head>
 <body>
 <div class="app">
-  <h1>
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-    Golf Tracker
-  </h1>
+
+  <header>
+    <div class="logo-circle">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b6d11" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+    </div>
+    <h1>Golf Tracker</h1>
+  </header>
 
   <nav>
     <button class="nav-btn active" onclick="showSection('log',this)">Log a round</button>
@@ -151,7 +188,6 @@
     <button class="nav-btn" onclick="showSection('staff',this)">Staff notes</button>
   </nav>
 
-  <!-- LOG / EDIT -->
   <div id="sec-log" class="section active">
     <div id="edit-banner" class="edit-banner">Editing round — make your changes and click Update round.</div>
     <p class="section-title" id="form-title">New round</p>
@@ -206,7 +242,7 @@
     <div class="card">
       <p class="card-label">Meals & expenses <span class="opt">(optional)</span></p>
       <div id="expense-list"></div>
-      <button class="btn" onclick="addExpenseRow()">+ Add expense</button>
+      <button class="btn secondary" onclick="addExpenseRow()">+ Add expense</button>
     </div>
 
     <div class="card">
@@ -218,7 +254,7 @@
         </button>
       </div>
       <div class="voice-hint">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor" opacity="0.5"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/></svg>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill="currentColor" opacity="0.4"/><path d="M2.5 8a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/></svg>
         Tap a mic icon to dictate into any field
       </div>
     </div>
@@ -231,7 +267,6 @@
     </div>
   </div>
 
-  <!-- HISTORY -->
   <div id="sec-history" class="section">
     <div class="tab-actions"><p class="section-title" style="margin:0">Round history</p></div>
     <div class="metrics">
@@ -243,7 +278,6 @@
     <div id="rounds-list"></div>
   </div>
 
-  <!-- STAFF -->
   <div id="sec-staff" class="section">
     <div class="tab-actions">
       <p class="section-title" style="margin:0">Staff notes</p>
@@ -288,291 +322,215 @@
     </div>
     <div id="staff-list"></div>
   </div>
+
 </div>
-
 <script>
-var ROUNDS_KEY = 'gt_rounds';
-var STAFF_KEY  = 'gt_staff';
-var rounds = [];
-var staffList = [];
-var expenseRows = [];
-var expCount = 0;
-var editingRoundId = null;
-var editingStaffId = null;
-var activeRecognition = null;
-var activeFieldId = null;
+var ROUNDS_KEY='gt_rounds', STAFF_KEY='gt_staff';
+var rounds=[], staffList=[], expenseRows=[], expCount=0;
+var editingRoundId=null, editingStaffId=null, activeRecognition=null, activeFieldId=null;
 
-function load(key) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : []; } catch(e) { return []; } }
-function save(key, data) { try { localStorage.setItem(key, JSON.stringify(data)); return true; } catch(e) { return false; } }
-function val(id) { var el = document.getElementById(id); return el ? el.value : ''; }
-function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
+function load(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):[]}catch(e){return[]}}
+function save(k,d){try{localStorage.setItem(k,JSON.stringify(d));return true}catch(e){return false}}
+function val(id){var el=document.getElementById(id);return el?el.value:''}
+function setVal(id,v){var el=document.getElementById(id);if(el)el.value=v||''}
 
-function flash(msg, isErr) {
-  var el = document.getElementById('save-msg');
-  el.textContent = msg;
-  el.className = 'flash ' + (isErr ? 'err' : 'ok');
-  el.style.display = 'inline-block';
-  if (!isErr) setTimeout(function(){ el.style.display = 'none'; }, 2500);
+function flash(msg,isErr){
+  var el=document.getElementById('save-msg');
+  el.textContent=msg; el.className='flash '+(isErr?'err':'ok'); el.style.display='inline-block';
+  if(!isErr)setTimeout(function(){el.style.display='none'},2500);
 }
 
-function init() {
-  rounds    = load(ROUNDS_KEY);
-  staffList = load(STAFF_KEY);
-  setVal('f-date', new Date().toISOString().split('T')[0]);
-  renderRounds();
-  renderStaff();
+function init(){
+  rounds=load(ROUNDS_KEY); staffList=load(STAFF_KEY);
+  setVal('f-date',new Date().toISOString().split('T')[0]);
+  renderRounds(); renderStaff();
 }
 
-function saveRound() {
-  var course = val('f-course').trim();
-  if (!course) { flash('Please enter a course name.', true); return; }
-  var exps = [];
-  for (var i = 0; i < expenseRows.length; i++) {
-    var eid  = expenseRows[i];
-    var desc = val('exp-desc-' + eid).trim();
-    var amt  = parseFloat(val('exp-amt-' + eid)) || 0;
-    if (desc || amt > 0) exps.push({ desc: desc, amount: amt });
+function saveRound(){
+  var course=val('f-course').trim();
+  if(!course){flash('Please enter a course name.',true);return;}
+  var exps=[];
+  for(var i=0;i<expenseRows.length;i++){
+    var eid=expenseRows[i], desc=val('exp-desc-'+eid).trim(), amt=parseFloat(val('exp-amt-'+eid))||0;
+    if(desc||amt>0)exps.push({desc:desc,amount:amt});
   }
-  var round = {
-    id:       editingRoundId || Date.now(),
-    course:   course,
-    date:     val('f-date'),
-    holes:    val('f-holes'),
-    score:    val('f-score')    || null,
-    par:      val('f-par')      || null,
-    partners: val('f-partners').trim(),
-    notes:    val('f-notes').trim(),
-    expenses: exps
-  };
-  if (editingRoundId) {
-    rounds = rounds.map(function(r){ return r.id === editingRoundId ? round : r; });
-  } else {
-    rounds.unshift(round);
-  }
-  if (save(ROUNDS_KEY, rounds)) {
-    flash(editingRoundId ? 'Round updated!' : 'Round saved!', false);
-    cancelEdit();
-    renderRounds();
-  } else {
-    if (!editingRoundId) rounds.shift();
-    flash('Save failed — storage may be full or blocked.', true);
-  }
+  var round={id:editingRoundId||Date.now(),course:course,date:val('f-date'),holes:val('f-holes'),
+    score:val('f-score')||null,par:val('f-par')||null,partners:val('f-partners').trim(),
+    notes:val('f-notes').trim(),expenses:exps};
+  if(editingRoundId){rounds=rounds.map(function(r){return r.id===editingRoundId?round:r});}
+  else{rounds.unshift(round);}
+  if(save(ROUNDS_KEY,rounds)){flash(editingRoundId?'Round updated!':'Round saved!',false);cancelEdit();renderRounds();}
+  else{if(!editingRoundId)rounds.shift();flash('Save failed — storage may be full or blocked.',true);}
 }
 
-function editRound(id) {
-  var r = rounds.find(function(x){ return x.id === id; });
-  if (!r) return;
-  editingRoundId = id;
-  setVal('f-course',   r.course);
-  setVal('f-date',     r.date);
-  setVal('f-holes',    r.holes);
-  setVal('f-score',    r.score);
-  setVal('f-par',      r.par);
-  setVal('f-partners', r.partners);
-  setVal('f-notes',    r.notes);
-  expenseRows = []; expCount = 0;
-  document.getElementById('expense-list').innerHTML = '';
-  (r.expenses || []).forEach(function(e) {
-    expCount++;
-    var eid = expCount;
-    expenseRows.push(eid);
-    var div = document.createElement('div');
-    div.className = 'expense-row';
-    div.id = 'exp-row-' + eid;
-    div.innerHTML =
-      '<input type="text" class="desc" id="exp-desc-'+eid+'" value="'+e.desc+'" placeholder="Description" />' +
-      '<input type="number" class="amt" id="exp-amt-'+eid+'" value="'+(e.amount||'')+'" placeholder="$0.00" step="0.01" min="0" />' +
+function editRound(id){
+  var r=rounds.find(function(x){return x.id===id}); if(!r)return;
+  editingRoundId=id;
+  setVal('f-course',r.course);setVal('f-date',r.date);setVal('f-holes',r.holes);
+  setVal('f-score',r.score);setVal('f-par',r.par);setVal('f-partners',r.partners);setVal('f-notes',r.notes);
+  expenseRows=[];expCount=0;document.getElementById('expense-list').innerHTML='';
+  (r.expenses||[]).forEach(function(e){
+    expCount++;var eid=expCount;expenseRows.push(eid);
+    var div=document.createElement('div');div.className='expense-row';div.id='exp-row-'+eid;
+    div.innerHTML='<input type="text" class="desc" id="exp-desc-'+eid+'" value="'+e.desc+'" placeholder="Description" />'+
+      '<input type="number" class="amt" id="exp-amt-'+eid+'" value="'+(e.amount||'')+'" placeholder="$0.00" step="0.01" min="0" />'+
       '<button class="btn danger" onclick="removeExpenseRow('+eid+')" style="padding:6px 10px;flex-shrink:0;">✕</button>';
     document.getElementById('expense-list').appendChild(div);
   });
-  document.getElementById('form-title').textContent = 'Edit round';
-  document.getElementById('save-btn').textContent = 'Update round';
-  document.getElementById('edit-banner').style.display = 'block';
-  document.getElementById('cancel-edit-btn').style.display = 'inline-block';
-  showSection('log', document.querySelector('.nav-btn'));
-  window.scrollTo(0, 0);
+  document.getElementById('form-title').textContent='Edit round';
+  document.getElementById('save-btn').textContent='Update round';
+  document.getElementById('edit-banner').style.display='block';
+  document.getElementById('cancel-edit-btn').style.display='inline-block';
+  showSection('log',document.querySelector('.nav-btn'));window.scrollTo(0,0);
 }
 
-function cancelEdit() {
-  editingRoundId = null;
-  document.getElementById('form-title').textContent = 'New round';
-  document.getElementById('save-btn').textContent = 'Save round';
-  document.getElementById('edit-banner').style.display = 'none';
-  document.getElementById('cancel-edit-btn').style.display = 'none';
+function cancelEdit(){
+  editingRoundId=null;
+  document.getElementById('form-title').textContent='New round';
+  document.getElementById('save-btn').textContent='Save round';
+  document.getElementById('edit-banner').style.display='none';
+  document.getElementById('cancel-edit-btn').style.display='none';
   clearForm();
 }
 
-function clearForm() {
-  ['f-course','f-score','f-par','f-partners','f-notes'].forEach(function(id){ setVal(id,''); });
-  setVal('f-holes', '18');
-  expenseRows = []; expCount = 0;
-  document.getElementById('expense-list').innerHTML = '';
-  setVal('f-date', new Date().toISOString().split('T')[0]);
+function clearForm(){
+  ['f-course','f-score','f-par','f-partners','f-notes'].forEach(function(id){setVal(id,'')});
+  setVal('f-holes','18');expenseRows=[];expCount=0;
+  document.getElementById('expense-list').innerHTML='';
+  setVal('f-date',new Date().toISOString().split('T')[0]);
 }
 
-function addExpenseRow() {
-  expCount++;
-  var id = expCount;
-  expenseRows.push(id);
-  var div = document.createElement('div');
-  div.className = 'expense-row';
-  div.id = 'exp-row-' + id;
-  div.innerHTML =
-    '<input type="text" class="desc" id="exp-desc-'+id+'" placeholder="Description (e.g. Lunch, greens fee, cart)" />' +
-    '<input type="number" class="amt" id="exp-amt-'+id+'" placeholder="$0.00" step="0.01" min="0" />' +
+function addExpenseRow(){
+  expCount++;var id=expCount;expenseRows.push(id);
+  var div=document.createElement('div');div.className='expense-row';div.id='exp-row-'+id;
+  div.innerHTML='<input type="text" class="desc" id="exp-desc-'+id+'" placeholder="Description (e.g. Lunch, greens fee, cart)" />'+
+    '<input type="number" class="amt" id="exp-amt-'+id+'" placeholder="$0.00" step="0.01" min="0" />'+
     '<button class="btn danger" onclick="removeExpenseRow('+id+')" style="padding:6px 10px;flex-shrink:0;">✕</button>';
   document.getElementById('expense-list').appendChild(div);
 }
 
-function removeExpenseRow(id) {
-  expenseRows = expenseRows.filter(function(r){ return r !== id; });
-  var row = document.getElementById('exp-row-' + id); if (row) row.remove();
+function removeExpenseRow(id){
+  expenseRows=expenseRows.filter(function(r){return r!==id});
+  var row=document.getElementById('exp-row-'+id);if(row)row.remove();
 }
 
-function renderRounds() {
-  var list = document.getElementById('rounds-list'); if (!list) return;
-  var scores = rounds.filter(function(r){ return r.score && !isNaN(+r.score); });
-  document.getElementById('m-rounds').textContent = rounds.length;
-  document.getElementById('m-best').textContent   = scores.length ? Math.min.apply(null, scores.map(function(r){ return +r.score; })) : '—';
-  document.getElementById('m-avg').textContent    = scores.length ? Math.round(scores.reduce(function(a,r){ return a + +r.score; },0) / scores.length) : '—';
-  var totalSpent = rounds.reduce(function(a,r){ return a+(r.expenses||[]).reduce(function(b,e){ return b+(e.amount||0); },0); },0);
-  document.getElementById('m-spent').textContent  = '$' + totalSpent.toFixed(0);
-
-  if (!rounds.length) { list.innerHTML = '<div class="empty">No rounds yet — log your first one!</div>'; return; }
-
-  var months = {};
-  var monthOrder = [];
-  rounds.forEach(function(r) {
-    var key = r.date ? r.date.substring(0,7) : 'unknown';
-    if (!months[key]) { months[key] = []; monthOrder.push(key); }
-    months[key].push(r);
-  });
-  monthOrder = monthOrder.filter(function(v,i,a){ return a.indexOf(v)===i; });
-
-  list.innerHTML = monthOrder.map(function(mkey) {
-    var mrs = months[mkey];
-    var mSpent = mrs.reduce(function(a,r){ return a+(r.expenses||[]).reduce(function(b,e){ return b+(e.amount||0); },0); },0);
-    var mScores = mrs.filter(function(r){ return r.score && !isNaN(+r.score); });
-    var mLabel = mkey === 'unknown' ? 'Unknown date' : new Date(mkey+'-15').toLocaleDateString('en-US',{month:'long',year:'numeric'});
-
-    var roundsHtml = mrs.map(function(r) {
-      var expTotal = (r.expenses||[]).reduce(function(a,e){ return a+(e.amount||0); },0);
-      var expItems = (r.expenses||[]).filter(function(e){ return e.desc||e.amount; }).map(function(e){ return e.desc+(e.amount?': $'+e.amount.toFixed(2):''); }).join(' · ');
-      var rel = (r.score && r.par) ? (+r.score - +r.par) : null;
-      var relStr = rel !== null ? (rel > 0 ? '+'+rel : rel===0 ? 'E' : ''+rel) : '';
-      var dateStr = r.date ? new Date(r.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-      return '<div class="round-item">' +
-        '<div class="round-header">' +
-          '<div><div class="round-title">'+r.course+'</div><div class="round-date">'+dateStr+'</div></div>' +
-          '<div class="round-actions">' +
-            '<button class="btn" onclick="editRound('+r.id+')" style="padding:4px 8px;font-size:12px;">Edit</button>' +
-            '<button class="btn danger" onclick="deleteRound('+r.id+')" style="padding:4px 8px;font-size:12px;">Delete</button>' +
-          '</div>' +
-        '</div>' +
-        '<div class="round-meta">' +
-          '<span class="badge">'+r.holes+' holes</span>' +
-          (r.score ? '<span class="badge score">'+r.score+(relStr?' ('+relStr+')':'')+'</span>' : '') +
-          (r.partners ? '<span class="badge">With: '+r.partners+'</span>' : '') +
-          (expTotal > 0 ? '<span class="badge expense">$'+expTotal.toFixed(2)+'</span>' : '') +
-        '</div>' +
-        (expItems ? '<div style="font-size:12px;color:#6b6b66;margin-top:4px;">'+expItems+'</div>' : '') +
-        (r.notes  ? '<div style="font-size:13px;color:#6b6b66;margin-top:6px;">'+r.notes+'</div>' : '') +
+function renderRounds(){
+  var list=document.getElementById('rounds-list');if(!list)return;
+  var scores=rounds.filter(function(r){return r.score&&!isNaN(+r.score)});
+  document.getElementById('m-rounds').textContent=rounds.length;
+  document.getElementById('m-best').textContent=scores.length?Math.min.apply(null,scores.map(function(r){return+r.score})):'—';
+  document.getElementById('m-avg').textContent=scores.length?Math.round(scores.reduce(function(a,r){return a+ +r.score},0)/scores.length):'—';
+  var spent=rounds.reduce(function(a,r){return a+(r.expenses||[]).reduce(function(b,e){return b+(e.amount||0)},0)},0);
+  document.getElementById('m-spent').textContent='$'+spent.toFixed(0);
+  if(!rounds.length){list.innerHTML='<div class="empty">No rounds yet — log your first one!</div>';return;}
+  var months={},monthOrder=[];
+  rounds.forEach(function(r){var k=r.date?r.date.substring(0,7):'unknown';if(!months[k]){months[k]=[];monthOrder.push(k)}months[k].push(r)});
+  monthOrder=monthOrder.filter(function(v,i,a){return a.indexOf(v)===i});
+  list.innerHTML=monthOrder.map(function(mkey){
+    var mrs=months[mkey];
+    var mSpent=mrs.reduce(function(a,r){return a+(r.expenses||[]).reduce(function(b,e){return b+(e.amount||0)},0)},0);
+    var mScores=mrs.filter(function(r){return r.score&&!isNaN(+r.score)});
+    var mLabel=mkey==='unknown'?'Unknown date':new Date(mkey+'-15').toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    var rHtml=mrs.map(function(r){
+      var expTotal=(r.expenses||[]).reduce(function(a,e){return a+(e.amount||0)},0);
+      var expItems=(r.expenses||[]).filter(function(e){return e.desc||e.amount}).map(function(e){return e.desc+(e.amount?': $'+e.amount.toFixed(2):'')}).join(' · ');
+      var rel=(r.score&&r.par)?(+r.score- +r.par):null;
+      var relStr=rel!==null?(rel>0?'+'+rel:rel===0?'E':''+rel):'';
+      var dateStr=r.date?new Date(r.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+      return '<div class="round-item">'+
+        '<div class="round-header">'+
+          '<div><div class="round-title">'+r.course+'</div><div class="round-date">'+dateStr+'</div></div>'+
+          '<div class="round-actions">'+
+            '<button class="btn secondary" onclick="editRound('+r.id+')" style="padding:4px 10px;font-size:12px;">Edit</button>'+
+            '<button class="btn danger" onclick="deleteRound('+r.id+')" style="padding:4px 10px;font-size:12px;">Delete</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="round-meta">'+
+          '<span class="badge holes">'+r.holes+' holes</span>'+
+          (r.score?'<span class="badge score">'+r.score+(relStr?' ('+relStr+')':'')+'</span>':'')+
+          (r.partners?'<span class="badge people">'+r.partners+'</span>':'')+
+          (expTotal>0?'<span class="badge money">$'+expTotal.toFixed(2)+'</span>':'')+
+        '</div>'+
+        (expItems?'<div style="font-size:12px;color:var(--text2);margin-top:4px;">'+expItems+'</div>':'')+
+        (r.notes?'<div style="font-size:13px;color:var(--text2);margin-top:6px;font-style:italic;">'+r.notes+'</div>':'')+
       '</div>';
     }).join('');
-
-    return '<div class="month-block">' +
-      '<div class="month-header">' +
-        '<div class="month-name">'+mLabel+'</div>' +
-        '<div class="month-summary">' +
-          '<div class="month-stat"><span>'+mrs.length+'</span> round'+(mrs.length!==1?'s':'')+'</div>' +
-          (mScores.length ? '<div class="month-stat">avg <span>'+Math.round(mScores.reduce(function(a,r){return a+ +r.score;},0)/mScores.length)+'</span></div>' : '') +
-          (mSpent > 0 ? '<div class="month-stat">spent <span>$'+mSpent.toFixed(2)+'</span></div>' : '') +
-        '</div>' +
-      '</div>' +
-      '<div>'+roundsHtml+'</div>' +
-    '</div>';
+    return '<div class="month-block">'+
+      '<div class="month-header">'+
+        '<div class="month-name">'+mLabel+'</div>'+
+        '<div class="month-summary">'+
+          '<div class="month-stat"><span>'+mrs.length+'</span> round'+(mrs.length!==1?'s':'')+'</div>'+
+          (mScores.length?'<div class="month-stat">avg <span>'+Math.round(mScores.reduce(function(a,r){return a+ +r.score},0)/mScores.length)+'</span></div>':'')+
+          (mSpent>0?'<div class="month-stat">spent <span>$'+mSpent.toFixed(2)+'</span></div>':'')+
+        '</div>'+
+      '</div>'+rHtml+'</div>';
   }).join('');
 }
 
-function deleteRound(id) {
-  rounds = rounds.filter(function(r){ return r.id !== id; });
-  save(ROUNDS_KEY, rounds); renderRounds();
-}
+function deleteRound(id){rounds=rounds.filter(function(r){return r.id!==id});save(ROUNDS_KEY,rounds);renderRounds();}
 
-function showSection(name, btn) {
-  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
-  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+function showSection(name,btn){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById('sec-'+name).classList.add('active');
-  if (btn) btn.classList.add('active');
-  if (name === 'history') renderRounds();
+  if(btn)btn.classList.add('active');
+  if(name==='history')renderRounds();
 }
 
-function showStaffForm() {
-  editingStaffId = null;
-  ['s-name','s-role','s-notes'].forEach(function(id){ setVal(id,''); });
-  document.getElementById('staff-form').style.display = 'block';
-}
-function hideStaffForm() { document.getElementById('staff-form').style.display = 'none'; editingStaffId = null; }
+function showStaffForm(){editingStaffId=null;['s-name','s-role','s-notes'].forEach(function(id){setVal(id,'')});document.getElementById('staff-form').style.display='block';}
+function hideStaffForm(){document.getElementById('staff-form').style.display='none';editingStaffId=null;}
 
-function saveStaff() {
-  var name = val('s-name').trim(); if (!name) { document.getElementById('s-name').focus(); return; }
-  var person = { id: editingStaffId || Date.now(), name: name, role: val('s-role').trim(), notes: val('s-notes').trim() };
-  if (editingStaffId) { staffList = staffList.map(function(s){ return s.id===editingStaffId?person:s; }); }
-  else { staffList.push(person); }
-  save(STAFF_KEY, staffList); hideStaffForm(); renderStaff();
+function saveStaff(){
+  var name=val('s-name').trim();if(!name){document.getElementById('s-name').focus();return;}
+  var person={id:editingStaffId||Date.now(),name:name,role:val('s-role').trim(),notes:val('s-notes').trim()};
+  if(editingStaffId){staffList=staffList.map(function(s){return s.id===editingStaffId?person:s});}
+  else{staffList.push(person);}
+  save(STAFF_KEY,staffList);hideStaffForm();renderStaff();
 }
 
-function editStaff(id) {
-  var p = staffList.find(function(s){ return s.id===id; }); if (!p) return;
-  editingStaffId = id;
-  setVal('s-name', p.name); setVal('s-role', p.role); setVal('s-notes', p.notes);
-  document.getElementById('staff-form').style.display = 'block';
+function editStaff(id){
+  var p=staffList.find(function(s){return s.id===id});if(!p)return;
+  editingStaffId=id;setVal('s-name',p.name);setVal('s-role',p.role);setVal('s-notes',p.notes);
+  document.getElementById('staff-form').style.display='block';
 }
 
-function deleteStaff(id) {
-  staffList = staffList.filter(function(s){ return s.id!==id; });
-  save(STAFF_KEY, staffList); renderStaff();
-}
+function deleteStaff(id){staffList=staffList.filter(function(s){return s.id!==id});save(STAFF_KEY,staffList);renderStaff();}
+function initials(name){return name.split(' ').slice(0,2).map(function(n){return n[0]||''}).join('').toUpperCase();}
 
-function initials(name) { return name.split(' ').slice(0,2).map(function(n){ return n[0]||''; }).join('').toUpperCase(); }
-
-function renderStaff() {
-  var list = document.getElementById('staff-list'); if (!list) return;
-  if (!staffList.length) { list.innerHTML = '<div class="empty">No staff notes yet. Add someone you meet on the course!</div>'; return; }
-  list.innerHTML = staffList.map(function(p) {
-    return '<div class="staff-item">' +
-      '<div class="avatar">'+initials(p.name)+'</div>' +
-      '<div class="staff-info">' +
-        '<div class="staff-name">'+p.name+'</div>' +
-        (p.role  ? '<div class="staff-role">'+p.role+'</div>' : '') +
-        (p.notes ? '<div class="staff-note">'+p.notes+'</div>' : '') +
-      '</div>' +
-      '<div style="display:flex;gap:6px;flex-shrink:0;">' +
-        '<button class="btn" onclick="editStaff('+p.id+')" style="padding:5px 10px;font-size:12px;">Edit</button>' +
-        '<button class="btn danger" onclick="deleteStaff('+p.id+')" style="padding:5px 10px;font-size:12px;">Delete</button>' +
-      '</div>' +
+function renderStaff(){
+  var list=document.getElementById('staff-list');if(!list)return;
+  if(!staffList.length){list.innerHTML='<div class="empty">No staff notes yet. Add someone you meet on the course!</div>';return;}
+  list.innerHTML=staffList.map(function(p){
+    return '<div class="staff-item">'+
+      '<div class="avatar">'+initials(p.name)+'</div>'+
+      '<div class="staff-info">'+
+        '<div class="staff-name">'+p.name+'</div>'+
+        (p.role?'<div class="staff-role">'+p.role+'</div>':'')+
+        (p.notes?'<div class="staff-note">'+p.notes+'</div>':'')+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-shrink:0;">'+
+        '<button class="btn secondary" onclick="editStaff('+p.id+')" style="padding:5px 10px;font-size:12px;">Edit</button>'+
+        '<button class="btn danger" onclick="deleteStaff('+p.id+')" style="padding:5px 10px;font-size:12px;">Delete</button>'+
+      '</div>'+
     '</div>';
   }).join('');
 }
 
-function toggleMic(fieldId) {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert('Voice input not supported. Try Chrome or Safari.'); return; }
-  if (activeRecognition && activeFieldId === fieldId) { activeRecognition.stop(); return; }
-  if (activeRecognition) { activeRecognition.stop(); setMicState(activeFieldId, false); }
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var rec = new SR();
-  rec.continuous = true; rec.interimResults = false; rec.lang = 'en-US';
-  activeFieldId = fieldId; activeRecognition = rec;
-  setMicState(fieldId, true);
-  rec.onresult = function(e) {
-    var t = Array.from(e.results).map(function(r){ return r[0].transcript; }).join(' ').trim();
-    var el = document.getElementById(fieldId);
-    if (el) el.value = el.value ? el.value+' '+t : t;
+function toggleMic(fieldId){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){alert('Voice input not supported. Try Chrome or Safari.');return;}
+  if(activeRecognition&&activeFieldId===fieldId){activeRecognition.stop();return;}
+  if(activeRecognition){activeRecognition.stop();setMicState(activeFieldId,false);}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition, rec=new SR();
+  rec.continuous=true;rec.interimResults=false;rec.lang='en-US';
+  activeFieldId=fieldId;activeRecognition=rec;setMicState(fieldId,true);
+  rec.onresult=function(e){
+    var t=Array.from(e.results).map(function(r){return r[0].transcript}).join(' ').trim();
+    var el=document.getElementById(fieldId);if(el)el.value=el.value?el.value+' '+t:t;
   };
-  rec.onerror = rec.onend = function(){ setMicState(fieldId, false); activeRecognition = null; activeFieldId = null; };
+  rec.onerror=rec.onend=function(){setMicState(fieldId,false);activeRecognition=null;activeFieldId=null;};
   rec.start();
 }
-function setMicState(fieldId, on) { var b = document.getElementById('mic-'+fieldId); if (b) b.classList.toggle('recording', on); }
+function setMicState(fieldId,on){var b=document.getElementById('mic-'+fieldId);if(b)b.classList.toggle('recording',on);}
 
 init();
 </script>
